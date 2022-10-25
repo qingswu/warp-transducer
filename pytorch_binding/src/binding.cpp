@@ -5,8 +5,7 @@
 #include "rnnt.h"
 
 #ifdef WARPRNNT_ENABLE_GPU
-    #include "THC.h"
-    extern THCState* state;
+    #include <ATen/cuda/ThrustAllocator.h>
 #endif
 
 int cpu_rnnt(torch::Tensor acts,
@@ -117,7 +116,7 @@ int gpu_rnnt(torch::Tensor acts,
 
         cudaSetDevice(acts.get_device());
 
-        void* gpu_workspace = THCudaMalloc(state, gpu_size_bytes);
+        void* gpu_workspace = c10::cuda::CUDACachingAllocator::raw_alloc(gpu_size_bytes);
 
         compute_rnnt_loss(acts.data<float>(), grads.data<float>(),
                          labels.data<int>(), label_lengths.data<int>(),
@@ -125,7 +124,7 @@ int gpu_rnnt(torch::Tensor acts,
                          minibatch_size, costs.data<float>(),
                          gpu_workspace, options);
 
-        THCudaFree(state, gpu_workspace);
+        c10::cuda::CUDACachingAllocator::raw_delete(gpu_workspace);
         return 0;
         }
       case torch::ScalarType::Double:
@@ -136,7 +135,7 @@ int gpu_rnnt(torch::Tensor acts,
 
         cudaSetDevice(acts.get_device());
 
-        void* gpu_workspace = THCudaMalloc(state, gpu_size_bytes);
+        void* gpu_workspace = c10::cuda::CUDACachingAllocator::raw_alloc(gpu_size_bytes);
 
         compute_rnnt_loss_fp64(acts.data<double>(), grads.data<double>(),
                          labels.data<int>(), label_lengths.data<int>(),
@@ -144,7 +143,7 @@ int gpu_rnnt(torch::Tensor acts,
                          minibatch_size, costs.data<double>(),
                          gpu_workspace, options);
 
-        THCudaFree(state, gpu_workspace);
+        c10::cuda::CUDACachingAllocator::raw_delete(gpu_workspace);
         return 0;
         }
       default:

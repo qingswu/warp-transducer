@@ -1,3 +1,36 @@
+This repo fixes building issues with newer pytorch (tested with 1.12) and cuda (11.0+), such as
+1. deprecated cuda compute arch, such as `compute_30,code=sm_30` in the `CMakeLists.txt`
+2. missing `"THC.h"` problems according to [Migrate THCThrustAllocator to ATen](https://github.com/pytorch/pytorch/pull/65492)
+
+so it can be used in projects like espnet with newer GPUs/CUDA/PyTorch.
+## To build
+
+1. Compile the cmake project using
+```
+mkdir build
+cd build
+cmake ..
+make
+```
+2. inside `pytorch_binding`, set cuda environment
+```bash
+# change `CUDA_HOME` to your path
+export CUDA_HOME=/usr/local/cuda-11.3
+export CUDA_TOOLKIT_ROOT_DIR=$CUDA_HOME
+export LD_LIBRARY_PATH="$CUDA_HOME/extras/CUPTI/lib64:$LD_LIBRARY_PATH"
+export LIBRARY_PATH=$CUDA_HOME/lib64:$LIBRARY_PATH
+export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
+export CFLAGS="-I$CUDA_HOME/include $CFLAGS"
+```
+3. install pytorch bindings via
+```
+python setup.py install
+```
+
+Below is the original README from https://github.com/HawkAaron/warp-transducer
+
+--------------------------------
+
 # warp-transducer
 A fast parallel implementation of RNN Transducer (Graves 2013 joint network), on both CPU and GPU.
 
