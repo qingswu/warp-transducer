@@ -2,7 +2,7 @@ This repo fixes building issues with newer pytorch (tested with 1.12) and cuda (
 1. deprecated cuda compute arch, such as `compute_30,code=sm_30` in the `CMakeLists.txt`
 2. missing `"THC.h"` problems according to [Migrate THCThrustAllocator to ATen](https://github.com/pytorch/pytorch/pull/65492)
 
-so it can be used in projects like espnet with newer GPUs/CUDA/PyTorch.
+so it can be used in projects with newer GPUs/CUDA/PyTorch.
 ## To build
 
 1. Compile the cmake project using
